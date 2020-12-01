@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/pkger"
 )
 
 // Server is the server based on Gin
@@ -36,7 +37,13 @@ func (s *Server) Init() error {
 	s.router.Use(gin.Logger())
 
 	// Add REST routes
-	s.router.GET("/quote", s.RouteGetQuote)
+	s.router.GET("/api/quote", s.RouteGetQuote)
+
+	// Serve the frontend application
+	err := s.serveFrontend()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -59,14 +66,16 @@ func (s *Server) Start(ctx context.Context) {
 	}
 
 	// TLS certificate and key
-	// TODO: USE PKGER
-	tlsCert := os.Getenv("TLS_CERT")
-	if tlsCert == "" {
-		tlsCert = "certs/cert.pem"
-	}
-	tlsKey := os.Getenv("TLS_KEY")
-	if tlsKey == "" {
-		tlsKey = "certs/key.pem"
+	var tlsCert, tlsKey string
+	if os.Getenv("NO_TLS") != "1" {
+		tlsCert = os.Getenv("TLS_CERT")
+		if tlsCert == "" {
+			tlsCert = "certs/cert.pem"
+		}
+		tlsKey = os.Getenv("TLS_KEY")
+		if tlsKey == "" {
+			tlsKey = "certs/key.pem"
+		}
 	}
 
 	// Launch the server (this is a blocking call)
@@ -75,6 +84,9 @@ func (s *Server) Start(ctx context.Context) {
 
 // Start the server
 func (s *Server) launchServer(ctx context.Context, bindAddr string, httpPort, httpsPort int, tlsCert, tlsKey string) {
+	// If we don't have a TLS certificate, don't enable TLS
+	enableTLS := (tlsCert != "" && tlsKey != "")
+
 	// HTTP server (no TLS)
 	httpSrv := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", bindAddr, httpPort),
@@ -104,13 +116,15 @@ func (s *Server) launchServer(ctx context.Context, bindAddr string, httpPort, ht
 	}()
 
 	// Start the HTTPS server in a background goroutine
-	go func() {
-		fmt.Printf("HTTPS server listening on https://%s:%d\n", bindAddr, httpsPort)
-		err := httpsSrv.ListenAndServeTLS(tlsCert, tlsKey)
-		if err != http.ErrServerClosed {
-			panic(err)
-		}
-	}()
+	if enableTLS {
+		go func() {
+			fmt.Printf("HTTPS server listening on https://%s:%d\n", bindAddr, httpsPort)
+			err := httpsSrv.ListenAndServeTLS(tlsCert, tlsKey)
+			if err != http.ErrServerClosed {
+				panic(err)
+			}
+		}()
+	}
 
 	// Listen to SIGINT and SIGTERM signals
 	ch := make(chan os.Signal, 1)
@@ -123,9 +137,12 @@ func (s *Server) launchServer(ctx context.Context, bindAddr string, httpPort, ht
 	}
 
 	// We received an interrupt signal, shut down both servers
+	var errHttp, errHttps error
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	errHttp := httpSrv.Shutdown(shutdownCtx)
-	errHttps := httpsSrv.Shutdown(shutdownCtx)
+	errHttp = httpSrv.Shutdown(shutdownCtx)
+	if enableTLS {
+		errHttps = httpsSrv.Shutdown(shutdownCtx)
+	}
 	shutdownCancel()
 	// Log the errors (could be context canceled)
 	if errHttp != nil {
@@ -134,4 +151,15 @@ func (s *Server) launchServer(ctx context.Context, bindAddr string, httpPort, ht
 	if errHttps != nil {
 		log.Println("HTTPS server shutdown error:", errHttps)
 	}
+}
+
+func (s *Server) serveFrontend() error {
+	// Serve the (compiled) frontend app when requesting a path that doesn't exist
+	box, err := pkger.Open("/frontend/public")
+	if err != nil {
+		return err
+	}
+	s.router.NoRoute(gin.WrapH(http.FileServer(box)))
+
+	return nil
 }

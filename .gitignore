@@ -1,3 +1,6 @@
+/.bin/
+/.out/
+pkged.go
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,go,visualstudiocode,linux,macos,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,go,visualstudiocode,linux,macos,windows

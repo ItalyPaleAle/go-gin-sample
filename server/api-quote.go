@@ -17,7 +17,7 @@ type getQuoteResponse struct {
 	Quote string `json:"quote"`
 }
 
-// RouteGetQuote is the handler for the GET /quote request
+// RouteGetQuote is the handler for the GET /api/quote request
 // The response contains a random Taylor Swift quote, as served by https://api.taylor.rest/
 func (s *Server) RouteGetQuote(c *gin.Context) {
 	// Request a new quote from the external service
