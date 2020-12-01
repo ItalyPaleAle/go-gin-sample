@@ -16,17 +16,27 @@ import (
 
 // Server is the server based on Gin
 type Server struct {
-	router *gin.Engine
+	router     *gin.Engine
+	httpClient *http.Client
 }
 
 // Init the Server object and create a Gin server
 func (s *Server) Init() error {
+	// Set Gin to Release mode
 	gin.SetMode(gin.ReleaseMode)
+
+	// Init a HTTP client
+	s.httpClient = &http.Client{
+		Timeout: 10 * time.Second,
+	}
 
 	// Create the Gin router and add the Recovery middleware to recover from panics
 	s.router = gin.New()
 	s.router.Use(gin.Recovery())
 	s.router.Use(gin.Logger())
+
+	// Add REST routes
+	s.router.GET("/quote", s.RouteGetQuote)
 
 	return nil
 }
