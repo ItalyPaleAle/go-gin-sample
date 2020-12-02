@@ -61,6 +61,7 @@ The app expects a TLS certificate in the `certs` folder (relative to the current
 
 You can tweak the app's behavior with these environmental variables:
 
+- **`DATA_ENDPOINT`**: endpoint of the `taylor.rest` service (default: `https://api.taylor.rest/`)
 - **`NO_TLS`**: set this to `1` (ie. `NO_TLS=1`) to disable TLS
 - **`TLS_CERT`**: path to a TLS certificate (default: `certs/cert.pem`)
 - **`TLS_KEY`**: path to a TLS key (default: `certs/key.pem`)

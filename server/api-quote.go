@@ -3,8 +3,10 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,11 +19,22 @@ type getQuoteResponse struct {
 	Quote string `json:"quote"`
 }
 
+var DataEndpoint string
+
+// On initialization, load the endpoint for the REST service
+func init() {
+	DataEndpoint = os.Getenv("DATA_ENDPOINT")
+	if DataEndpoint == "" {
+		DataEndpoint = "https://api.taylor.rest/"
+	}
+	fmt.Println("Using data source", DataEndpoint)
+}
+
 // RouteGetQuote is the handler for the GET /api/quote request
 // The response contains a random Taylor Swift quote, as served by https://api.taylor.rest/
 func (s *Server) RouteGetQuote(c *gin.Context) {
 	// Request a new quote from the external service
-	res, err := s.httpClient.Get("https://api.taylor.rest/")
+	res, err := s.httpClient.Get(DataEndpoint)
 	if err != nil {
 		c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
