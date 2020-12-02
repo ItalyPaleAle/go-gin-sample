@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  workspace:
+    # Use the default container for Go 1.15
+    image: 'mcr.microsoft.com/vscode/devcontainers/go:1.15'
+    networks:
+      - dev
+    restart: unless-stopped
+    #ports:
+    #  - 127.0.0.1:3000:3000
+    #  - 127.0.0.1:8080:8080
+    #  - 127.0.0.1:8443:8443
+    volumes:
+      # Update this to wherever you want VS Code to mount the folder of your project
+      - ..:/home/vscode/workspace:cached
+    # Overrides default command so things don't shut down after the process ends
+    command: sleep infinity 
+    # Use a non-root user for all processes
+    user: vscode
+    # Enable certain capabilities that are necessary for debugging Go apps
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    # Environmental variables
+    environment:
+      - 'DATA_ENDPOINT=http://data:8000/'
+  data:
+    image: italypaleale/taylor.rest:latest
+    networks:
+      dev:
+        aliases: 
+          - data
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8000:8000
+
+networks:
+  dev:

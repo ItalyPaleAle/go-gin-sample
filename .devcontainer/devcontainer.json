@@ -1,0 +1,37 @@
+{
+	"name": "sample",
+
+	// Use a docker-compose manifest
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "workspace",
+	"workspaceFolder": "/home/vscode/workspace",
+
+	// Set *default* container-specific settings.json values on container create
+	"settings": {
+		"terminal.integrated.shell.linux": "/usr/bin/zsh",
+		"go.useGoProxyToCheckForToolUpdates": false,
+		"go.useLanguageServer": true,
+		"go.gopath": "/go",
+		"go.goroot": "/usr/local/go",
+		"go.toolsGopath": "/go/bin",
+		"go.toolsEnvVars": {
+			"DATA_ENDPOINT": "http://data:8000/",
+		},
+		"go.testFlags": [
+			"-v",
+		]
+	},
+
+	// Install VS Code extensions when the container is created
+	"extensions": [],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally
+	"forwardPorts": [
+        3000,
+        8080,
+        8443,
+	],
+
+	// Connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root
+	"remoteUser": "vscode"
+}
