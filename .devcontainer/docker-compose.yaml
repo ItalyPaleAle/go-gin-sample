@@ -2,8 +2,16 @@ version: '3'
 
 services:
   workspace:
-    # Use the default container for Go 1.15
-    image: 'mcr.microsoft.com/vscode/devcontainers/go:1.15'
+    # Build a container
+    build: 
+     context: .
+     dockerfile: Dockerfile
+     args:
+       # Install Go
+       VARIANT: '1.15'
+       # Install Node.js
+       INSTALL_NODE: 'true'
+       NODE_VERSION: '14'
     networks:
       - dev
     restart: unless-stopped
