@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/pkger"
 )
@@ -35,6 +36,9 @@ func (s *Server) Init() error {
 	s.router = gin.New()
 	s.router.Use(gin.Recovery())
 	s.router.Use(gin.Logger())
+
+	// Enable CORS from any origin
+	s.router.Use(cors.Default())
 
 	// Add REST routes
 	s.router.GET("/api/quote", s.RouteGetQuote)
