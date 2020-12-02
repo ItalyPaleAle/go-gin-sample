@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -60,6 +61,10 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: '[name].[contenthash:8].css'
 		}),
+
+		new webpack.DefinePlugin({
+            URL_PREFIX: process.env.URL_PREFIX ? JSON.stringify(process.env.URL_PREFIX) : null,
+        }),
 		
 		new HtmlWebpackPlugin({
 			template: 'src/index.html',
