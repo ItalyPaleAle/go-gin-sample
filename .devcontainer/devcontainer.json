@@ -23,7 +23,10 @@
 	},
 
 	// Install VS Code extensions when the container is created
-	"extensions": [],
+	"extensions": [
+		"golang.go",
+		"svelte.svelte-vscode"
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally
 	"forwardPorts": [
