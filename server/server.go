@@ -41,7 +41,7 @@ func (s *Server) Init() error {
 	s.router.Use(cors.Default())
 
 	// Add REST routes
-	s.router.GET("/api/quote", s.RouteGetQuote)
+	s.router.GET("/api/quote2", s.RouteGetQuote)
 
 	// Serve the frontend application
 	err := s.serveFrontend()
