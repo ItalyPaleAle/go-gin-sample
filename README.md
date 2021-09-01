@@ -68,5 +68,3 @@ You can tweak the app's behavior with these environmental variables:
 - **`BIND`**: address to bind to; the default value is `127.0.0.1` but you might need to change this to `0.0.0.0` to listen on all interfaces
 - **`HTTP_PORT`**: port for the HTTP server, without TLS (default: `8080`)
 - **`HTTPS_PORT`**: port for the HTTPS server, with TLS (default: `8443`)
-
-TEST MAKING CHANGE
